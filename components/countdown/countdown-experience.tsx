@@ -1,29 +1,36 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import gsap from "gsap";
-import { Share2, Info, Check } from "lucide-react";
-import { toast, Toaster } from "sonner";
-import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import { CalculationResult, CountdownMode } from "@/lib/countdown/types";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Check, Share2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { toast, Toaster } from "sonner";
 import { AmbientBackground } from "./ambient-background";
 import { CinematicOrbit } from "./cinematic-orbit";
+import { CompletionEffect } from "./completion-effect";
 import { CountdownDigits } from "./countdown-digits";
 import { CountdownModeToggle } from "./countdown-mode-toggle";
+import { HeroLanding } from "./hero-landing";
 import { ProgressTrack } from "./progress-track";
 import { SecondaryStats } from "./secondary-stats";
 import { UpcomingOverride } from "./upcoming-override";
-import { CompletionEffect } from "./completion-effect";
-import { Button } from "@/components/ui/button";
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface CountdownExperienceProps {
   initialResult: CalculationResult;
 }
 
-export function CountdownExperience({ initialResult }: CountdownExperienceProps) {
+export function CountdownExperience({
+  initialResult,
+}: CountdownExperienceProps) {
   const [mode, setMode] = useState<CountdownMode>("working");
   const [reducedMotion, setReducedMotion] = useState(false);
   const [copied, setCopied] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   // Midnight auto-refresh in Bangkok timezone
@@ -44,37 +51,119 @@ export function CountdownExperience({ initialResult }: CountdownExperienceProps)
     return () => clearInterval(timer);
   }, [initialResult.todayKey, router]);
 
-  // Load saved preference from localStorage
+  // Load saved preference + reduced motion listener
   useEffect(() => {
-    const savedMode = localStorage.getItem("internship_countdown_mode") as CountdownMode;
+    const savedMode = localStorage.getItem(
+      "internship_countdown_mode",
+    ) as CountdownMode;
     if (savedMode === "working" || savedMode === "calendar") {
       setMode(savedMode);
     }
 
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReducedMotion(motionQuery.matches);
+
+    const handleChange = (e: MediaQueryListEvent) =>
+      setReducedMotion(e.matches);
+    motionQuery.addEventListener("change", handleChange);
+    return () => motionQuery.removeEventListener("change", handleChange);
   }, []);
 
-  const handleModeChange = (newMode: CountdownMode) => {
-    setMode(newMode);
-    localStorage.setItem("internship_countdown_mode", newMode);
-  };
-
-  // GSAP Intro Timeline (Run once on mount)
+  // GSAP ScrollTrigger: Hero → Countdown transition
   useEffect(() => {
     if (reducedMotion) return;
 
     const ctx = gsap.context(() => {
       gsap.config({ nullTargetWarn: false });
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-      tl.from("[data-intro='eyebrow']", { y: 12, opacity: 0, duration: 0.45 })
-        .from("[data-intro='number']", { y: 36, opacity: 0, filter: "blur(14px)", duration: 0.75 }, "-=0.2")
-        .from("[data-intro='progress']", { scaleX: 0, transformOrigin: "left", duration: 0.65 }, "-=0.35")
-        .from("[data-intro='stat']", { y: 8, opacity: 0, stagger: 0.06, duration: 0.35 }, "-=0.25");
-    });
+
+      // Pin hero and animate it out on scroll
+      const heroTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: "[data-hero]",
+          start: "top top",
+          end: "bottom top",
+          pin: true,
+          scrub: 0.8,
+        },
+      });
+
+      heroTl
+        .to("[data-hero-logo]", {
+          scale: 1.08,
+          opacity: 0,
+          y: -40,
+          duration: 1,
+          ease: "power2.in",
+        })
+        .to(
+          "[data-hero-tagline]",
+          {
+            opacity: 0,
+            y: -20,
+            duration: 0.6,
+          },
+          "<0.1",
+        )
+        .to(
+          "[data-hero-scroll]",
+          {
+            opacity: 0,
+            duration: 0.3,
+          },
+          "<",
+        );
+
+      // Countdown section entrance animation
+      gsap.from("[data-countdown-section]", {
+        scrollTrigger: {
+          trigger: "[data-countdown-section]",
+          start: "top 85%",
+          end: "top 40%",
+          scrub: 0.5,
+        },
+        opacity: 0,
+        y: 60,
+        filter: "blur(8px)",
+      });
+
+      // Countdown content intro (plays once when section enters)
+      ScrollTrigger.create({
+        trigger: "[data-countdown-section]",
+        start: "top 60%",
+        once: true,
+        onEnter: () => {
+          const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+          tl.from("[data-intro='eyebrow']", {
+            y: 12,
+            opacity: 0,
+            duration: 0.45,
+          })
+            .from(
+              "[data-intro='number']",
+              { y: 36, opacity: 0, filter: "blur(14px)", duration: 0.75 },
+              "-=0.2",
+            )
+            .from(
+              "[data-intro='progress']",
+              { scaleX: 0, transformOrigin: "left", duration: 0.65 },
+              "-=0.35",
+            )
+            .from(
+              "[data-intro='stat']",
+              { y: 8, opacity: 0, stagger: 0.06, duration: 0.35 },
+              "-=0.25",
+            );
+        },
+      });
+    }, containerRef);
 
     return () => ctx.revert();
   }, [reducedMotion]);
+
+  const handleModeChange = (newMode: CountdownMode) => {
+    setMode(newMode);
+    localStorage.setItem("internship_countdown_mode", newMode);
+  };
 
   // Determine displayed numbers according to toggle mode
   const isWorkingMode = mode === "working";
@@ -86,7 +175,9 @@ export function CountdownExperience({ initialResult }: CountdownExperienceProps)
     ? initialResult.workingProgress
     : initialResult.calendarProgress;
 
-  const displayLabel = isWorkingMode ? "workdays until freedom" : "days until freedom";
+  const displayLabel = isWorkingMode
+    ? "workdays until freedom"
+    : "days until freedom";
 
   // Stage calculation for accent color dynamics
   let stage = "stage-60";
@@ -117,104 +208,129 @@ export function CountdownExperience({ initialResult }: CountdownExperienceProps)
   };
 
   return (
-    <div className="relative min-h-screen min-h-[100svh] flex flex-col justify-between p-4 sm:p-8 overflow-hidden" data-stage={stage}>
+    <div ref={containerRef} data-stage={stage}>
       <Toaster position="bottom-center" theme="dark" />
-      <AmbientBackground stage={stage} reducedMotion={reducedMotion} />
-      <CompletionEffect isCompleted={initialResult.isCompleted} reducedMotion={reducedMotion} />
 
-      {/* Top Bar */}
-      <header className="relative z-10 w-full max-w-6xl mx-auto flex items-center justify-between h-14">
-        <div className="eyebrow text-text-tertiary">
-          DAY ZERO
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleShare}
-          className="rounded-full border-line bg-surface/40 backdrop-blur-md hover:bg-surface-elevated min-h-[44px] px-4"
-        >
-          {copied ? <Check className="h-3.5 w-3.5 mr-1.5 text-success" /> : <Share2 className="h-3.5 w-3.5 mr-1.5" />}
-          <span className="text-xs">{copied ? "คัดลอกแล้ว" : "แชร์"}</span>
-        </Button>
-      </header>
+      {/* Section 1: Hero Landing */}
+      <HeroLanding reducedMotion={reducedMotion} />
 
-      {/* Hero Section */}
-      <main className="relative z-10 w-full max-w-3xl mx-auto flex-1 flex flex-col items-center justify-center text-center my-auto py-6">
-        <CinematicOrbit
-          progress={displayProgress}
-          urgency={
-            initialResult.remainingWorkingDays <= 7
-              ? 3
-              : initialResult.remainingWorkingDays <= 30
-              ? 2
-              : initialResult.remainingWorkingDays <= 60
-              ? 1
-              : 0
-          }
-          completed={initialResult.isCompleted}
+      {/* Section 2: Countdown */}
+      <div
+        data-countdown-section
+        className="relative min-h-screen min-h-[100svh] flex flex-col justify-between p-4 sm:p-8 overflow-hidden"
+      >
+        <AmbientBackground stage={stage} reducedMotion={reducedMotion} />
+        <CompletionEffect
+          isCompleted={initialResult.isCompleted}
           reducedMotion={reducedMotion}
         />
 
-        {/* Eyebrow Status */}
-        {initialResult.isBeforeStart || initialResult.isFinalDay || initialResult.isCompleted ? (
-          <div data-intro="eyebrow" className="eyebrow text-accent mb-2">
-            {initialResult.isBeforeStart
-              ? "COUNTDOWN STARTS SOON"
-              : initialResult.isFinalDay
-              ? "THE FINAL DAY · TODAY"
-              : "INTERNSHIP COMPLETED"}
-          </div>
-        ) : null}
+        {/* Top Bar */}
+        <header className="relative z-10 w-full max-w-6xl mx-auto flex items-center justify-between h-14">
+          <div className="eyebrow text-text-tertiary">DAY ZERO</div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleShare}
+            className="rounded-full border-line bg-surface/40 backdrop-blur-md hover:bg-surface-elevated min-h-[44px] px-4"
+          >
+            {copied ? (
+              <Check className="h-3.5 w-3.5 mr-1.5 text-success" />
+            ) : (
+              <Share2 className="h-3.5 w-3.5 mr-1.5" />
+            )}
+            <span className="text-xs">{copied ? "คัดลอกแล้ว" : "แชร์"}</span>
+          </Button>
+        </header>
 
-        {/* Main Countdown Display */}
-        <div data-intro="number" className="relative z-10 w-full flex flex-col items-center">
-          {initialResult.isCompleted ? (
-            <div className="countdown-number text-text-primary tracking-tight py-4">
-              COMPLETED
+        {/* Main Countdown */}
+        <main className="relative z-10 w-full max-w-3xl mx-auto flex-1 flex flex-col items-center justify-center text-center my-auto py-6">
+          <CinematicOrbit
+            progress={displayProgress}
+            urgency={
+              initialResult.remainingWorkingDays <= 7
+                ? 3
+                : initialResult.remainingWorkingDays <= 30
+                  ? 2
+                  : initialResult.remainingWorkingDays <= 60
+                    ? 1
+                    : 0
+            }
+            completed={initialResult.isCompleted}
+            reducedMotion={reducedMotion}
+          />
+
+          {/* Eyebrow Status */}
+          {initialResult.isBeforeStart ||
+          initialResult.isFinalDay ||
+          initialResult.isCompleted ? (
+            <div data-intro="eyebrow" className="eyebrow text-accent mb-2">
+              {initialResult.isBeforeStart
+                ? "COUNTDOWN STARTS SOON"
+                : initialResult.isFinalDay
+                  ? "THE FINAL DAY · TODAY"
+                  : "INTERNSHIP COMPLETED"}
             </div>
-          ) : (
-            <CountdownDigits
-              value={displayValue}
-              label={displayLabel}
+          ) : null}
+
+          {/* Main Countdown Display */}
+          <div
+            data-intro="number"
+            className="relative z-10 w-full flex flex-col items-center"
+          >
+            {initialResult.isCompleted ? (
+              <div className="countdown-number text-text-primary tracking-tight py-4">
+                COMPLETED
+              </div>
+            ) : (
+              <CountdownDigits
+                value={displayValue}
+                label={displayLabel}
+                reducedMotion={reducedMotion}
+              />
+            )}
+
+            <div className="text-base sm:text-lg font-medium text-text-secondary mt-1 mb-4">
+              {initialResult.isCompleted
+                ? "วันสุดท้ายของการฝึกงาน"
+                : displayLabel}
+            </div>
+
+            <CountdownModeToggle
+              mode={mode}
+              onModeChange={handleModeChange}
+              disabled={initialResult.isCompleted}
+            />
+          </div>
+
+          {/* Progress Line */}
+          <div data-intro="progress" className="w-full flex justify-center">
+            <ProgressTrack
+              progress={displayProgress}
               reducedMotion={reducedMotion}
             />
-          )}
-
-          <div className="text-base sm:text-lg font-medium text-text-secondary mt-1 mb-4">
-            {initialResult.isCompleted ? "วันสุดท้ายของการฝึกงาน" : displayLabel}
           </div>
 
-          <CountdownModeToggle
-            mode={mode}
-            onModeChange={handleModeChange}
-            disabled={initialResult.isCompleted}
+          {/* End Date */}
+          <div className="text-xs sm:text-sm font-mono tracking-widest text-text-secondary uppercase mb-3">
+            30 OCTOBER 2026
+          </div>
+
+          {/* Supporting Stats */}
+          <SecondaryStats
+            remainingCalendarDays={initialResult.remainingCalendarDays}
+            remainingWeeks={initialResult.remainingWeeks}
+            lastUpdatedAt={initialResult.lastUpdatedAt}
           />
-        </div>
 
-        {/* Progress Line */}
-        <div data-intro="progress" className="w-full flex justify-center">
-          <ProgressTrack progress={displayProgress} reducedMotion={reducedMotion} />
-        </div>
+          <UpcomingOverride overrides={initialResult.upcomingOverrides} />
+        </main>
 
-        {/* End Date */}
-        <div className="text-xs sm:text-sm font-mono tracking-widest text-text-secondary uppercase mb-3">
-          30 OCTOBER 2026
-        </div>
-
-        {/* Supporting Stats */}
-        <SecondaryStats
-          remainingCalendarDays={initialResult.remainingCalendarDays}
-          remainingWeeks={initialResult.remainingWeeks}
-          lastUpdatedAt={initialResult.lastUpdatedAt}
-        />
-
-        <UpcomingOverride overrides={initialResult.upcomingOverrides} />
-      </main>
-
-      {/* Footer */}
-      <footer className="relative z-10 w-full max-w-6xl mx-auto text-center py-2 text-[11px] text-text-tertiary font-mono">
-        ASIA / BANGKOK TIMEZONE
-      </footer>
+        {/* Footer */}
+        <footer className="relative z-10 w-full max-w-6xl mx-auto text-center py-2 text-[11px] text-text-tertiary font-mono">
+          ASIA / BANGKOK TIMEZONE
+        </footer>
+      </div>
     </div>
   );
 }

@@ -17,7 +17,7 @@ export function CountdownDigits({ value, label, reducedMotion = false }: Countdo
       className="relative flex items-center justify-center my-2 sm:my-4"
       aria-label={`เหลือ ${value} ${label}`}
     >
-      <div className="flex items-center justify-center overflow-hidden py-2" aria-hidden="true">
+      <div className="flex items-center justify-center overflow-hidden py-2 px-2 sm:px-4" aria-hidden="true">
         {digits.map((digit, index) => (
           <div key={`${digits.length}-${index}`} className="countdown-number relative inline-block h-[0.8em]">
             {reducedMotion ? (
