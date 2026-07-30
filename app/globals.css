@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #06070a;
+  --background-soft: #0a0d13;
+  --surface: #10141c;
+  --surface-elevated: #151a24;
+  --text-primary: #f3f6fb;
+  --text-secondary: #9ca7b6;
+  --text-tertiary: #687384;
+  --line: rgba(255, 255, 255, 0.10);
+  --line-strong: rgba(255, 255, 255, 0.18);
+  --accent: #7ea6ff;
+  --accent-secondary: #9a7cff;
+  --success: #7ed6a4;
+  --warning: #f0bf68;
+  --danger: #ff8888;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text-primary);
+  font-family: var(--font-geist), var(--font-noto-sans-thai), sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+  min-height: 100svh;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Typography & tabular numbers */
+.countdown-number {
+  font-size: clamp(6.5rem, 26vw, 17rem);
+  line-height: 0.8;
+  font-weight: 560;
+  letter-spacing: -0.065em;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+.eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Custom noise grain layer */
+.bg-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
+}
+
+/* Stage-based Accent Styles */
+[data-stage="stage-60"] {
+  --accent: #7ea6ff;
+  --accent-secondary: #38bdf8;
+}
+
+[data-stage="stage-30"] {
+  --accent: #9a7cff;
+  --accent-secondary: #818cf8;
+}
+
+[data-stage="stage-8"] {
+  --accent: #c084fc;
+  --accent-secondary: #f472b6;
+}
+
+[data-stage="stage-1"] {
+  --accent: #fbbf24;
+  --accent-secondary: #f87171;
+}
+
+[data-stage="completed"] {
+  --accent: #f59e0b;
+  --accent-secondary: #34d399;
+}
