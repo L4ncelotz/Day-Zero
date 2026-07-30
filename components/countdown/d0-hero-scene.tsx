@@ -72,10 +72,10 @@ export function D0HeroScene({ reducedMotion = false }: D0HeroSceneProps) {
           x: bgTranslateX,
           y: bgTranslateY,
         }}
-        className="absolute inset-[-10%] rounded-full blur-[90px] opacity-40 pointer-events-none"
+        className="absolute inset-[-50%] rounded-full blur-[100px] opacity-40 pointer-events-none"
         aria-hidden="true"
       >
-        <div className="w-full h-full bg-[radial-gradient(circle_at_60%_40%,#6366f1_0%,#3b82f6_35%,#0f172a_70%,transparent_100%)]" />
+        <div className="w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.6)_0%,rgba(59,130,246,0.3)_40%,transparent_70%)]" />
       </motion.div>
 
       {/* Layer 2: Horizontal Lens Flare Beam */}
@@ -99,11 +99,11 @@ export function D0HeroScene({ reducedMotion = false }: D0HeroSceneProps) {
       >
         {/* Eclipse Rim Aura Glow */}
         <div
-          className="absolute inset-0 rounded-full pointer-events-none"
+          className="absolute inset-[-20%] rounded-full pointer-events-none"
           style={{
             background:
-              "radial-gradient(circle at 75% 35%, rgba(147, 197, 253, 0.45) 0%, rgba(99, 102, 241, 0.25) 45%, transparent 70%)",
-            filter: "blur(25px)",
+              "radial-gradient(circle at 65% 35%, rgba(147, 197, 253, 0.3) 0%, rgba(99, 102, 241, 0.15) 45%, transparent 70%)",
+            filter: "blur(35px)",
           }}
           aria-hidden="true"
         />
