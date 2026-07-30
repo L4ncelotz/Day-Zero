@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
+import Image from "next/image";
 
 interface D0HeroSceneProps {
   reducedMotion?: boolean;
@@ -156,58 +157,23 @@ export function D0HeroScene({ reducedMotion = false }: D0HeroSceneProps) {
             />
           )}
 
-          {/* Layer 4: Floating "D O" Emblem (Elevated in 3D Space) */}
+          {/* Layer 4: Real D0 Brand Logo Asset (Elevated in 3D Space) */}
           <motion.div
             style={{
               x: fgTranslateX,
               y: fgTranslateY,
               transform: "translateZ(45px)",
             }}
-            className="absolute inset-0 flex items-center justify-center p-8 z-10"
+            className="absolute inset-0 flex items-center justify-center p-6 z-10"
           >
-            <svg
-              viewBox="0 0 300 200"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-full h-full drop-shadow-[0_12px_25px_rgba(0,0,0,0.8)]"
-            >
-              <defs>
-                <linearGradient id="emblem-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#ffffff" />
-                  <stop offset="70%" stopColor="#f1f5f9" />
-                  <stop offset="100%" stopColor="#cbd5e1" />
-                </linearGradient>
-                <filter id="emblem-glow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="3" result="blur" />
-                  <feComponentTransfer in="blur" result="glow1">
-                    <feFuncA type="linear" slope="0.6" />
-                  </feComponentTransfer>
-                  <feMerge>
-                    <feMergeNode in="glow1" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
-              </defs>
-
-              {/* Stylized 'D' with Sharp Sci-Fi Wings */}
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M 82 42 L 62 50 L 82 50 L 82 150 L 62 150 L 82 158 H 122 C 160 158 186 136 186 100 C 186 64 160 42 122 42 Z M 106 65 H 118 C 142 65 158 78 158 100 C 158 122 142 135 118 135 H 106 Z"
-                fill="url(#emblem-gradient)"
-                filter="url(#emblem-glow)"
-              />
-
-              {/* Stylized 'O' with Top-Right Slash Cut */}
-              <path
-                d="M 226 50 A 45 45 0 1 1 236 43"
-                fill="none"
-                stroke="url(#emblem-gradient)"
-                strokeWidth="15"
-                strokeLinecap="round"
-                filter="url(#emblem-glow)"
-              />
-            </svg>
+            <Image
+              src="/logo/day-zero-logo.png"
+              alt="DAY ZERO logo"
+              width={420}
+              height={220}
+              priority
+              className="w-[clamp(220px,28vw,420px)] h-auto object-contain pointer-events-none"
+            />
           </motion.div>
         </div>
       </motion.div>

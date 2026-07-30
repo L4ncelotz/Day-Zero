@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { CalculationResult, CountdownMode } from "@/lib/countdown/types";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useMotionValue, useSpring } from "motion/react";
 import { Check, Share2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -17,6 +18,7 @@ import { HeroLanding } from "./hero-landing";
 import { ProgressTrack } from "./progress-track";
 import { SecondaryStats } from "./secondary-stats";
 import { UpcomingOverride } from "./upcoming-override";
+import { CustomCursor } from "./custom-cursor";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -32,6 +34,12 @@ export function CountdownExperience({
   const [copied, setCopied] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  // Centralized pointer tracking for Parallax
+  const pointerX = useMotionValue(0);
+  const pointerY = useMotionValue(0);
+  const smoothPointerX = useSpring(pointerX, { damping: 25, stiffness: 120, mass: 0.6 });
+  const smoothPointerY = useSpring(pointerY, { damping: 25, stiffness: 120, mass: 0.6 });
 
   // Midnight auto-refresh in Bangkok timezone
   useEffect(() => {
@@ -68,6 +76,32 @@ export function CountdownExperience({
     motionQuery.addEventListener("change", handleChange);
     return () => motionQuery.removeEventListener("change", handleChange);
   }, []);
+
+  // Desktop pointer tracking listener
+  useEffect(() => {
+    if (reducedMotion) return;
+    const mediaQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
+    if (!mediaQuery.matches) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const x = (e.clientX / window.innerWidth) * 2 - 1;
+      const y = (e.clientY / window.innerHeight) * 2 - 1;
+      pointerX.set(x);
+      pointerY.set(y);
+    };
+
+    const handleMouseLeave = () => {
+      pointerX.set(0);
+      pointerY.set(0);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseleave", handleMouseLeave);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseleave", handleMouseLeave);
+    };
+  }, [reducedMotion, pointerX, pointerY]);
 
   // GSAP ScrollTrigger: Hero → Countdown transition
   useEffect(() => {
@@ -132,26 +166,44 @@ export function CountdownExperience({
         start: "top 60%",
         once: true,
         onEnter: () => {
-          const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-          tl.from("[data-intro='eyebrow']", {
-            y: 12,
+          const played = sessionStorage.getItem("internship_intro_played");
+          if (played) {
+            gsap.set("[data-intro='bg'], [data-intro='orbit'], [data-intro='eyebrow'], [data-intro='number'], [data-intro='stat']", { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" });
+            gsap.set("[data-intro='progress']", { scaleX: 1 });
+            return;
+          }
+          
+          sessionStorage.setItem("internship_intro_played", "true");
+
+          const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+          tl.from("[data-intro='bg']", {
             opacity: 0,
-            duration: 0.45,
+            duration: 1.5,
           })
+            .from("[data-intro='orbit']", {
+              scale: 0.8,
+              opacity: 0,
+              duration: 1.2,
+            }, "-=1.0")
+            .from("[data-intro='eyebrow']", {
+              y: 12,
+              opacity: 0,
+              duration: 0.8,
+            }, "-=0.8")
             .from(
               "[data-intro='number']",
-              { y: 36, opacity: 0, filter: "blur(14px)", duration: 0.75 },
-              "-=0.2",
+              { y: 36, opacity: 0, filter: "blur(14px)", duration: 1.2 },
+              "-=0.6",
             )
             .from(
               "[data-intro='progress']",
-              { scaleX: 0, transformOrigin: "left", duration: 0.65 },
-              "-=0.35",
+              { scaleX: 0, transformOrigin: "left", duration: 1 },
+              "-=0.8",
             )
             .from(
               "[data-intro='stat']",
-              { y: 8, opacity: 0, stagger: 0.06, duration: 0.35 },
-              "-=0.25",
+              { y: 8, opacity: 0, stagger: 0.08, duration: 0.8 },
+              "-=0.6",
             );
         },
       });
@@ -209,6 +261,7 @@ export function CountdownExperience({
 
   return (
     <div ref={containerRef} data-stage={stage}>
+      <CustomCursor reducedMotion={reducedMotion} />
       <Toaster position="bottom-center" theme="dark" />
 
       {/* Section 1: Hero Landing */}
@@ -219,7 +272,9 @@ export function CountdownExperience({
         data-countdown-section
         className="relative min-h-screen min-h-[100svh] flex flex-col justify-between p-4 sm:p-8 overflow-hidden"
       >
-        <AmbientBackground stage={stage} reducedMotion={reducedMotion} />
+        <div data-intro="bg" className="absolute inset-0 pointer-events-none">
+          <AmbientBackground stage={stage} reducedMotion={reducedMotion} pointerX={smoothPointerX} pointerY={smoothPointerY} />
+        </div>
         <CompletionEffect
           isCompleted={initialResult.isCompleted}
           reducedMotion={reducedMotion}
@@ -245,20 +300,24 @@ export function CountdownExperience({
 
         {/* Main Countdown */}
         <main className="relative z-10 w-full max-w-3xl mx-auto flex-1 flex flex-col items-center justify-center text-center my-auto py-6">
-          <CinematicOrbit
-            progress={displayProgress}
-            urgency={
-              initialResult.remainingWorkingDays <= 7
-                ? 3
-                : initialResult.remainingWorkingDays <= 30
-                  ? 2
-                  : initialResult.remainingWorkingDays <= 60
-                    ? 1
-                    : 0
-            }
-            completed={initialResult.isCompleted}
-            reducedMotion={reducedMotion}
-          />
+          <div data-intro="orbit" className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+            <CinematicOrbit
+              progress={displayProgress}
+              urgency={
+                initialResult.remainingWorkingDays <= 7
+                  ? 3
+                  : initialResult.remainingWorkingDays <= 30
+                    ? 2
+                    : initialResult.remainingWorkingDays <= 60
+                      ? 1
+                      : 0
+              }
+              completed={initialResult.isCompleted}
+              reducedMotion={reducedMotion}
+              pointerX={smoothPointerX}
+              pointerY={smoothPointerY}
+            />
+          </div>
 
           {/* Eyebrow Status */}
           {initialResult.isBeforeStart ||
@@ -280,13 +339,15 @@ export function CountdownExperience({
           >
             {initialResult.isCompleted ? (
               <div className="countdown-number text-text-primary tracking-tight py-4">
-                COMPLETED
+                DAY ZERO
               </div>
             ) : (
               <CountdownDigits
                 value={displayValue}
                 label={displayLabel}
                 reducedMotion={reducedMotion}
+                pointerX={smoothPointerX}
+                pointerY={smoothPointerY}
               />
             )}
 

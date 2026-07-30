@@ -84,3 +84,11 @@ body {
   0%, 100% { opacity: 0.15; }
   50% { opacity: 0.8; }
 }
+
+/* Hide default OS cursor on desktop fine pointer devices when custom cursor is active */
+@media (hover: hover) and (pointer: fine) {
+  body.custom-cursor-active,
+  body.custom-cursor-active * {
+    cursor: none !important;
+  }
+}

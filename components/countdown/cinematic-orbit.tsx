@@ -8,6 +8,8 @@ interface CinematicOrbitProps {
   urgency: 0 | 1 | 2 | 3;
   completed: boolean;
   reducedMotion: boolean;
+  pointerX?: import("motion/react").MotionValue<number>;
+  pointerY?: import("motion/react").MotionValue<number>;
 }
 
 export function CinematicOrbit({
@@ -15,63 +17,36 @@ export function CinematicOrbit({
   urgency,
   completed,
   reducedMotion,
+  pointerX,
+  pointerY,
 }: CinematicOrbitProps) {
   // 1. Mouse Parallax Constraints
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
   const springConfig = { damping: 25, stiffness: 150, mass: 0.5 };
-  const smoothMouseX = useSpring(mouseX, springConfig);
-  const smoothMouseY = useSpring(mouseY, springConfig);
-
-  const isHovering = useRef(false);
-
-  useEffect(() => {
-    if (reducedMotion) return;
-
-    // Desktop pointer devices only
-    const mediaQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
-    if (!mediaQuery.matches) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isHovering.current) return;
-      const x = (e.clientX / window.innerWidth) * 2 - 1;
-      const y = (e.clientY / window.innerHeight) * 2 - 1;
-      mouseX.set(x);
-      mouseY.set(y);
-    };
-
-    const handleMouseEnter = () => { isHovering.current = true; };
-    const handleMouseLeave = () => {
-      isHovering.current = false;
-      // Gently return to neutral
-      mouseX.set(0);
-      mouseY.set(0);
-    };
-
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseenter", handleMouseEnter);
-    document.addEventListener("mouseleave", handleMouseLeave);
-
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseenter", handleMouseEnter);
-      document.removeEventListener("mouseleave", handleMouseLeave);
-    };
-  }, [reducedMotion, mouseX, mouseY]);
-
-  // Transform mouse values to 3D rotation degrees
-  // Outer layer: strongest movement (up to 5 deg)
-  const rotateXOuter = useTransform(smoothMouseY, [-1, 1], [-5, 5]);
-  const rotateYOuter = useTransform(smoothMouseX, [-1, 1], [5, -5]);
   
-  // Inner layer: medium movement (up to 3 deg)
-  const rotateXInner = useTransform(smoothMouseY, [-1, 1], [-3, 3]);
-  const rotateYInner = useTransform(smoothMouseX, [-1, 1], [3, -3]);
+  // Use provided centralized pointers, fallback to 0 if not provided
+  const dummyX = useMotionValue(0);
+  const dummyY = useMotionValue(0);
+  const smoothPointerX = useSpring(pointerX || dummyX, springConfig);
+  const smoothPointerY = useSpring(pointerY || dummyY, springConfig);
 
-  // Progress layer: minimal movement (up to 1.5 deg)
-  const rotateXProgress = useTransform(smoothMouseY, [-1, 1], [-1.5, 1.5]);
-  const rotateYProgress = useTransform(smoothMouseX, [-1, 1], [1.5, -1.5]);
+  // Transform mouse values to 3D rotation degrees and 2D translations
+  // Outer layer: strongest movement (up to 5 deg rotation, 8px translation)
+  const rotateXOuter = useTransform(smoothPointerY, [-1, 1], [-5, 5]);
+  const rotateYOuter = useTransform(smoothPointerX, [-1, 1], [5, -5]);
+  const translateXOuter = useTransform(smoothPointerX, [-1, 1], [-8, 8]);
+  const translateYOuter = useTransform(smoothPointerY, [-1, 1], [-8, 8]);
+  
+  // Inner layer: medium movement (up to 3 deg rotation, 5px translation)
+  const rotateXInner = useTransform(smoothPointerY, [-1, 1], [-3, 3]);
+  const rotateYInner = useTransform(smoothPointerX, [-1, 1], [3, -3]);
+  const translateXInner = useTransform(smoothPointerX, [-1, 1], [-5, 5]);
+  const translateYInner = useTransform(smoothPointerY, [-1, 1], [-5, 5]);
+
+  // Progress layer: minimal movement (up to 1.5 deg rotation, 2px translation)
+  const rotateXProgress = useTransform(smoothPointerY, [-1, 1], [-1.5, 1.5]);
+  const rotateYProgress = useTransform(smoothPointerX, [-1, 1], [1.5, -1.5]);
+  const translateXProgress = useTransform(smoothPointerX, [-1, 1], [-2, 2]);
+  const translateYProgress = useTransform(smoothPointerY, [-1, 1], [-2, 2]);
 
   // 2. Continuous Rotation (Time-based)
   const time = useMotionValue(0);
@@ -146,8 +121,10 @@ export function CinematicOrbit({
 
       {/* Layer 4: Decorative orbital planes (Outer) */}
       <motion.div
-        style={{ rotateX: rotateXOuter, rotateY: rotateYOuter, transformStyle: "preserve-3d" }}
+        style={{ rotateX: rotateXOuter, rotateY: rotateYOuter, x: translateXOuter, y: translateYOuter, transformStyle: "preserve-3d" }}
         className="absolute inset-0 flex items-center justify-center transform-gpu"
+        animate={completed && !reducedMotion ? { scale: 1.4, opacity: 0 } : { scale: 1, opacity: 1 }}
+        transition={{ duration: 1.5, ease: "easeInOut" }}
       >
         <motion.svg
           style={{ rotate: continuousRotateZ1 }}
@@ -171,8 +148,10 @@ export function CinematicOrbit({
 
       {/* Layer 4: Decorative orbital planes (Inner) */}
       <motion.div
-        style={{ rotateX: rotateXInner, rotateY: rotateYInner, transformStyle: "preserve-3d" }}
+        style={{ rotateX: rotateXInner, rotateY: rotateYInner, x: translateXInner, y: translateYInner, transformStyle: "preserve-3d" }}
         className="absolute inset-0 flex items-center justify-center transform-gpu"
+        animate={completed && !reducedMotion ? { scale: 0.6, opacity: 0 } : { scale: 1, opacity: 1 }}
+        transition={{ duration: 1.2, ease: "easeInOut" }}
       >
         <motion.svg
           style={{ rotate: continuousRotateZ3 }}
@@ -186,8 +165,10 @@ export function CinematicOrbit({
 
       {/* Layers 2, 3, 5: Progress Arc & Track */}
       <motion.div
-        style={{ rotateX: rotateXProgress, rotateY: rotateYProgress, transformStyle: "preserve-3d" }}
+        style={{ rotateX: rotateXProgress, rotateY: rotateYProgress, x: translateXProgress, y: translateYProgress, transformStyle: "preserve-3d" }}
         className="absolute inset-0 flex items-center justify-center transform-gpu"
+        animate={completed && !reducedMotion ? { scale: 1.15, opacity: 0 } : { scale: 1, opacity: 1 }}
+        transition={{ duration: 1.0, ease: "easeIn" }}
       >
         <svg viewBox="0 0 200 200" className="w-[85%] h-[85%] -rotate-90">
           {/* Layer 2: Low-opacity dashed track */}
