@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { D0Logo } from "./d0-logo";
+import { D0HeroScene } from "./d0-hero-scene";
 
 interface HeroLandingProps {
   reducedMotion: boolean;
@@ -9,7 +9,7 @@ interface HeroLandingProps {
 
 /**
  * Full-viewport cinematic hero section.
- * Contains: starfield background, D0 logo, tagline, and scroll indicator.
+ * Contains: starfield background, 2.5D interactive D0 Eclipse Scene, tagline, and scroll indicator.
  * Pinned and animated out via GSAP ScrollTrigger from the parent.
  */
 export function HeroLanding({ reducedMotion }: HeroLandingProps) {
@@ -20,7 +20,6 @@ export function HeroLanding({ reducedMotion }: HeroLandingProps) {
     if (!starfieldRef.current) return;
 
     const container = starfieldRef.current;
-    // Clear any existing stars on re-render
     container.innerHTML = "";
 
     const starCount = 80;
@@ -64,27 +63,18 @@ export function HeroLanding({ reducedMotion }: HeroLandingProps) {
         aria-hidden="true"
       />
 
-      {/* Deep space radial glow behind logo */}
-      <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] max-w-[600px] h-[60vw] max-h-[600px] rounded-full blur-[100px] opacity-20 pointer-events-none"
-        style={{
-          background: "radial-gradient(circle, var(--accent), transparent 70%)",
-        }}
-        aria-hidden="true"
-      />
-
-      {/* Logo */}
+      {/* 2.5D Interactive D0 Eclipse Logo Scene */}
       <div
         data-hero-logo
-        className="relative z-10 w-[280px] sm:w-[340px] md:w-[400px]"
+        className="relative z-10 w-full flex items-center justify-center -mt-6 sm:-mt-8"
       >
-        <D0Logo glowOpacity={0.8} />
+        <D0HeroScene reducedMotion={reducedMotion} />
       </div>
 
       {/* Tagline */}
       <div
         data-hero-tagline
-        className="relative z-10 mt-6 sm:mt-8 text-center space-y-2"
+        className="relative z-10 -mt-2 sm:-mt-4 text-center space-y-2"
       >
         <h1 className="text-xs sm:text-sm tracking-[0.35em] font-semibold text-text-secondary uppercase">
           Day Zero — Until Freedom

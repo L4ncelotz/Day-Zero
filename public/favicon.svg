@@ -1,4 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" rx="8" fill="#0a0a0a"/>
-  <text x="4" y="22" font-family="monospace" font-weight="700" font-size="13" fill="#a78bfa" letter-spacing="-0.5">DZ</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <circle cx="50" cy="50" r="48" fill="#06070a"/>
+  {/* Eclipse Rim */}
+  <path d="M 50 4 A 46 46 0 0 1 96 50 A 46 46 0 0 1 50 96" fill="none" stroke="#818cf8" stroke-width="3.5" opacity="0.9" />
+  <circle cx="50" cy="50" r="44" fill="#040508" />
+  
+  {/* Stylized D */}
+  <path 
+    fill-rule="evenodd" 
+    clip-rule="evenodd" 
+    d="M 27 28 L 20 33 L 27 33 L 27 67 L 20 67 L 27 72 H 41 C 54 72 62 64 62 50 C 62 36 54 28 41 28 Z M 35 36 H 40 C 48 36 53 41 53 50 C 53 59 48 64 40 64 H 35 Z" 
+    fill="#ffffff" 
+  />
+  
+  {/* Stylized O with top-right slash gap */}
+  <path 
+    d="M 72.5 30.5 A 20 20 0 1 1 76.5 27.5" 
+    fill="none" 
+    stroke="#ffffff" 
+    stroke-width="6.5" 
+    stroke-linecap="round" 
+  />
 </svg>
