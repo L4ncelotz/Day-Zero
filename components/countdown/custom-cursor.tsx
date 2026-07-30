@@ -36,7 +36,7 @@ export function CustomCursor({ reducedMotion = false }: CustomCursorProps) {
     const handleMouseMove = (e: MouseEvent) => {
       cursorX.set(e.clientX);
       cursorY.set(e.clientY);
-      if (!isVisible) setIsVisible(true);
+      setIsVisible(true);
     };
 
     const handleMouseLeave = () => setIsVisible(false);
@@ -62,7 +62,7 @@ export function CustomCursor({ reducedMotion = false }: CustomCursorProps) {
       document.removeEventListener("mouseleave", handleMouseLeave);
       document.removeEventListener("mouseenter", handleMouseEnter);
     };
-  }, [reducedMotion, cursorX, cursorY, isVisible]);
+  }, [reducedMotion, cursorX, cursorY]);
 
   if (!isPointerDevice || reducedMotion || !isVisible) return null;
 

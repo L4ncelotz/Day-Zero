@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
-import Image from "next/image";
+import { DayZeroLogoSvg } from "./day-zero-logo-svg";
 
 interface D0HeroSceneProps {
   reducedMotion?: boolean;
@@ -33,6 +33,10 @@ export function D0HeroScene({ reducedMotion = false }: D0HeroSceneProps) {
   // Dynamic light glare position on emblem
   const glareX = useTransform(smoothX, [-1, 1], [20, 80]);
   const glareY = useTransform(smoothY, [-1, 1], [20, 80]);
+  const glareBackground = useTransform(
+    [glareX, glareY],
+    ([x, y]) => `radial-gradient(circle at ${x}% ${y}%, rgba(255,255,255,0.8) 0%, transparent 60%)`
+  );
 
   useEffect(() => {
     if (reducedMotion) return;
@@ -149,10 +153,7 @@ export function D0HeroScene({ reducedMotion = false }: D0HeroSceneProps) {
             <motion.div
               className="absolute inset-0 pointer-events-none opacity-25 mix-blend-overlay"
               style={{
-                background: useTransform(
-                  [glareX, glareY],
-                  ([x, y]) => `radial-gradient(circle at ${x}% ${y}%, rgba(255,255,255,0.8) 0%, transparent 60%)`
-                ),
+                background: glareBackground,
               }}
             />
           )}
@@ -166,14 +167,7 @@ export function D0HeroScene({ reducedMotion = false }: D0HeroSceneProps) {
             }}
             className="absolute inset-0 flex items-center justify-center p-6 z-10"
           >
-            <Image
-              src="/logo/day-zero-logo.png"
-              alt="DAY ZERO logo"
-              width={420}
-              height={220}
-              priority
-              className="w-[clamp(220px,28vw,420px)] h-auto object-contain pointer-events-none"
-            />
+            <DayZeroLogoSvg className="w-[clamp(220px,28vw,420px)] pointer-events-none" />
           </motion.div>
         </div>
       </motion.div>

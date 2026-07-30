@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useMemo } from "react";
 import { D0HeroScene } from "./d0-hero-scene";
 
 interface HeroLandingProps {
@@ -13,43 +13,19 @@ interface HeroLandingProps {
  * Pinned and animated out via GSAP ScrollTrigger from the parent.
  */
 export function HeroLanding({ reducedMotion }: HeroLandingProps) {
-  const starfieldRef = useRef<HTMLDivElement>(null);
-
-  // Generate starfield dots on mount (CSS-only, no Canvas)
-  useEffect(() => {
-    if (!starfieldRef.current) return;
-
-    const container = starfieldRef.current;
-    container.innerHTML = "";
-
+  // Generate starfield dots safely with useMemo
+  const stars = useMemo(() => {
     const starCount = 80;
-    const fragment = document.createDocumentFragment();
-
-    for (let i = 0; i < starCount; i++) {
-      const star = document.createElement("div");
-      const size = Math.random() * 2 + 0.5; // 0.5px - 2.5px
-      const x = Math.random() * 100;
-      const y = Math.random() * 100;
-      const delay = Math.random() * 5;
-      const duration = 2 + Math.random() * 3; // 2-5s twinkle
-
-      star.style.cssText = `
-        position: absolute;
-        left: ${x}%;
-        top: ${y}%;
-        width: ${size}px;
-        height: ${size}px;
-        border-radius: 50%;
-        background: #fff;
-        opacity: ${0.2 + Math.random() * 0.6};
-        animation: ${reducedMotion ? "none" : `twinkle ${duration}s ${delay}s ease-in-out infinite`};
-      `;
-
-      fragment.appendChild(star);
-    }
-
-    container.appendChild(fragment);
-  }, [reducedMotion]);
+    return Array.from({ length: starCount }).map((_, i) => ({
+      id: i,
+      size: Math.random() * 2 + 0.5,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      delay: Math.random() * 5,
+      duration: 2 + Math.random() * 3,
+      opacity: 0.2 + Math.random() * 0.6,
+    }));
+  }, []);
 
   return (
     <section
@@ -57,11 +33,26 @@ export function HeroLanding({ reducedMotion }: HeroLandingProps) {
       className="relative w-full h-screen h-[100svh] flex flex-col items-center justify-center overflow-hidden"
     >
       {/* Starfield */}
-      <div
-        ref={starfieldRef}
-        className="absolute inset-0 pointer-events-none"
-        aria-hidden="true"
-      />
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+        {stars.map((star) => (
+          <div
+            key={star.id}
+            style={{
+              position: "absolute",
+              left: `${star.x}%`,
+              top: `${star.y}%`,
+              width: `${star.size}px`,
+              height: `${star.size}px`,
+              borderRadius: "50%",
+              background: "#fff",
+              opacity: star.opacity,
+              animation: reducedMotion
+                ? "none"
+                : `twinkle ${star.duration}s ${star.delay}s ease-in-out infinite`,
+            }}
+          />
+        ))}
+      </div>
 
       {/* 2.5D Interactive D0 Eclipse Logo Scene */}
       <div

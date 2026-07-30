@@ -29,7 +29,29 @@ export function CompletionEffect({ isCompleted, reducedMotion = false }: Complet
 
   if (!shouldRender) return null;
 
-  const particles = Array.from({ length: 40 });
+  const particles = React.useMemo(() => {
+    return Array.from({ length: 40 }).map((_, i) => {
+      const isViolet = i % 2 === 0;
+      const colorClass = isViolet 
+        ? "bg-violet-400 shadow-[0_0_12px_rgba(167,139,250,0.8)]" 
+        : "bg-white shadow-[0_0_12px_rgba(255,255,255,0.8)]";
+      const angle = (i / 40) * 360 + (Math.random() * 10 - 5);
+      const radius = 150 + Math.random() * 250;
+      const x = Math.cos((angle * Math.PI) / 180) * radius;
+      const y = Math.sin((angle * Math.PI) / 180) * radius;
+      const scale = Math.random() * 0.5 + 0.5;
+      const duration = 1.2 + Math.random() * 0.8;
+
+      return {
+        id: i,
+        colorClass,
+        x,
+        y,
+        scale,
+        duration
+      };
+    });
+  }, []);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-40 flex items-center justify-center overflow-hidden">
@@ -50,24 +72,15 @@ export function CompletionEffect({ isCompleted, reducedMotion = false }: Complet
       />
 
       {/* Particle Sparks */}
-      {particles.map((_, i) => {
-        const isViolet = i % 2 === 0;
-        const colorClass = isViolet ? "bg-violet-400 shadow-[0_0_12px_rgba(167,139,250,0.8)]" : "bg-white shadow-[0_0_12px_rgba(255,255,255,0.8)]";
-        const angle = (i / particles.length) * 360 + (Math.random() * 10 - 5);
-        const radius = 150 + Math.random() * 250;
-        const x = Math.cos((angle * Math.PI) / 180) * radius;
-        const y = Math.sin((angle * Math.PI) / 180) * radius;
-
-        return (
-          <motion.div
-            key={i}
-            initial={{ x: 0, y: 0, scale: Math.random() * 0.5 + 0.5, opacity: 1 }}
-            animate={{ x, y, scale: 0, opacity: 0 }}
-            transition={{ duration: 1.2 + Math.random() * 0.8, ease: "easeOut" }}
-            className={`absolute w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${colorClass}`}
-          />
-        );
-      })}
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          initial={{ x: 0, y: 0, scale: p.scale, opacity: 1 }}
+          animate={{ x: p.x, y: p.y, scale: 0, opacity: 0 }}
+          transition={{ duration: p.duration, ease: "easeOut" }}
+          className={`absolute w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${p.colorClass}`}
+        />
+      ))}
     </div>
   );
 }

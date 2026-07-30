@@ -4,6 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { verifyAdminPassword } from "@/lib/auth/password";
 import { createAdminSession, destroyAdminSession, requireAdminSession } from "@/lib/auth/session";
+import { headers } from "next/headers";
 import { checkLoginRateLimit, recordFailedLogin, resetFailedLogin } from "@/lib/auth/rate-limit";
 import { getSchedule, saveSchedule } from "@/lib/schedule/repository";
 import { validateOverrideInput } from "@/lib/countdown/validation";
@@ -15,18 +16,21 @@ export async function loginAction(prevState: any, formData: FormData) {
     return { error: "กรุณากรอกรหัสผ่าน" };
   }
 
-  const rateLimit = checkLoginRateLimit();
+  const headersList = await headers();
+  const ip = headersList.get("x-forwarded-for") || "global";
+
+  const rateLimit = await checkLoginRateLimit(ip);
   if (!rateLimit.allowed) {
     return { error: "พยายามเข้าสู่ระบบมากเกินไป กรุณาลองใหม่ในภายหลัง" };
   }
 
   const isValid = await verifyAdminPassword(password);
   if (!isValid) {
-    recordFailedLogin();
+    await recordFailedLogin(ip);
     return { error: "รหัสผ่านไม่ถูกต้อง" };
   }
 
-  resetFailedLogin();
+  await resetFailedLogin(ip);
   await createAdminSession();
   redirect("/control-room");
 }

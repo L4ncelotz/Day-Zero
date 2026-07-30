@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion, MotionValue, useTransform } from "motion/react";
+import { motion, MotionValue, useMotionValue, useTransform } from "motion/react";
 
 interface AmbientBackgroundProps {
   stage: string;
@@ -11,14 +11,20 @@ interface AmbientBackgroundProps {
 }
 
 export function AmbientBackground({ stage, reducedMotion = false, pointerX, pointerY }: AmbientBackgroundProps) {
+  const fallbackX = useMotionValue(0);
+  const fallbackY = useMotionValue(0);
+
+  const x = pointerX ?? fallbackX;
+  const y = pointerY ?? fallbackY;
+
   // Parallax constraints: Background glow: 10–18px
   // Main glow (up to 18px)
-  const translateX1 = useTransform(pointerX || new motion.MotionValue(), [-1, 1], [-18, 18]);
-  const translateY1 = useTransform(pointerY || new motion.MotionValue(), [-1, 1], [-18, 18]);
+  const translateX1 = useTransform(x, [-1, 1], [-18, 18]);
+  const translateY1 = useTransform(y, [-1, 1], [-18, 18]);
   
   // Secondary glow (moves oppositely, up to 10px)
-  const translateX2 = useTransform(pointerX || new motion.MotionValue(), [-1, 1], [10, -10]);
-  const translateY2 = useTransform(pointerY || new motion.MotionValue(), [-1, 1], [10, -10]);
+  const translateX2 = useTransform(x, [-1, 1], [10, -10]);
+  const translateY2 = useTransform(y, [-1, 1], [10, -10]);
 
   return (
     <div className={`fixed inset-0 pointer-events-none overflow-hidden z-0 transition-colors duration-2000 ${stage === "completed" ? "bg-[#0b0c16]" : "bg-background"}`}>
