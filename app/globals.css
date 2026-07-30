@@ -78,3 +78,9 @@ body {
   --accent: #f59e0b;
   --accent-secondary: #34d399;
 }
+
+/* Starfield twinkle animation */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.8; }
+}
