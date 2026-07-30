@@ -7,7 +7,7 @@ import { toast, Toaster } from "sonner";
 import { useRouter } from "next/navigation";
 import { CalculationResult, CountdownMode } from "@/lib/countdown/types";
 import { AmbientBackground } from "./ambient-background";
-import { RiveOrbit } from "./rive-orbit";
+import { CinematicOrbit } from "./cinematic-orbit";
 import { CountdownDigits } from "./countdown-digits";
 import { CountdownModeToggle } from "./countdown-mode-toggle";
 import { ProgressTrack } from "./progress-track";
@@ -140,7 +140,7 @@ export function CountdownExperience({ initialResult }: CountdownExperienceProps)
 
       {/* Hero Section */}
       <main className="relative z-10 w-full max-w-3xl mx-auto flex-1 flex flex-col items-center justify-center text-center my-auto py-6">
-        <RiveOrbit
+        <CinematicOrbit
           progress={displayProgress}
           urgency={
             initialResult.remainingWorkingDays <= 7
