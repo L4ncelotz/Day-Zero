@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { redis } from "@/lib/redis/client";
 
+export const REACTION_EMOJIS = ["❤️", "🔥", "😂", "😭", "😱", "👍"] as const;
+export type ReactionEmoji = (typeof REACTION_EMOJIS)[number];
+
 export interface ChatMessage {
   id: string;
   name: string;
@@ -8,6 +11,8 @@ export interface ChatMessage {
   roleIcon: string;
   text: string;
   createdAt: string;
+  // reactions: Record<emoji, Set<nickname>>  — stored as Record<emoji, string[]>
+  reactions?: Record<string, string[]>;
 }
 
 const REDIS_KEY = "internship_chat_messages";
@@ -21,19 +26,33 @@ let inMemoryMessages: ChatMessage[] = [
     roleIcon: "🤖",
     text: "ยินดีต้อนรับสู่ห้องแชทประจำวัน! ทักทายหรือแชร์ความรู้สึกวันนี้ได้เลย 🚀",
     createdAt: new Date().toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" }),
+    reactions: {},
   },
 ];
 
+async function getMessages(): Promise<ChatMessage[]> {
+  if (redis) {
+    const data = await redis.get(REDIS_KEY);
+    if (data) {
+      return typeof data === "string" ? JSON.parse(data) : (data as ChatMessage[]);
+    }
+    return [];
+  }
+  return inMemoryMessages;
+}
+
+async function saveMessages(messages: ChatMessage[]): Promise<void> {
+  if (redis) {
+    await redis.set(REDIS_KEY, JSON.stringify(messages));
+  } else {
+    inMemoryMessages = messages;
+  }
+}
+
 export async function GET() {
   try {
-    if (redis) {
-      const data = await redis.get(REDIS_KEY);
-      if (data) {
-        const messages = typeof data === "string" ? JSON.parse(data) : data;
-        return NextResponse.json(messages);
-      }
-    }
-    return NextResponse.json(inMemoryMessages);
+    const messages = await getMessages();
+    return NextResponse.json(messages);
   } catch (error) {
     console.error("Chat GET error:", error);
     return NextResponse.json(inMemoryMessages);
@@ -56,23 +75,53 @@ export async function POST(req: Request) {
       roleIcon: roleIcon || "☕️",
       text: text.trim().slice(0, 300),
       createdAt: new Date().toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" }),
+      reactions: {},
     };
 
-    if (redis) {
-      let current: ChatMessage[] = [];
-      const existing = await redis.get(REDIS_KEY);
-      if (existing) {
-        current = typeof existing === "string" ? JSON.parse(existing) : (existing as ChatMessage[]);
-      }
-      current = [...current, newMessage].slice(-60);
-      await redis.set(REDIS_KEY, JSON.stringify(current));
-      return NextResponse.json(current);
-    } else {
-      inMemoryMessages = [...inMemoryMessages, newMessage].slice(-60);
-      return NextResponse.json(inMemoryMessages);
-    }
+    const current = await getMessages();
+    const updated = [...current, newMessage].slice(-60);
+    await saveMessages(updated);
+    return NextResponse.json(updated);
   } catch (error) {
     console.error("Chat POST error:", error);
     return NextResponse.json({ error: "Failed to save message" }, { status: 500 });
+  }
+}
+
+// PATCH /api/chat — toggle reaction on a message
+// Body: { messageId, emoji, nickname }
+export async function PATCH(req: Request) {
+  try {
+    const body = await req.json();
+    const { messageId, emoji, nickname } = body;
+
+    if (!messageId || !emoji || !nickname) {
+      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+    }
+    if (!REACTION_EMOJIS.includes(emoji as ReactionEmoji)) {
+      return NextResponse.json({ error: "Invalid emoji" }, { status: 400 });
+    }
+
+    const messages = await getMessages();
+    const updated = messages.map((msg) => {
+      if (msg.id !== messageId) return msg;
+
+      const reactions = { ...(msg.reactions || {}) };
+      const current = reactions[emoji] ?? [];
+      const alreadyReacted = current.includes(nickname);
+
+      // Toggle: if already reacted → remove, else → add
+      reactions[emoji] = alreadyReacted
+        ? current.filter((n) => n !== nickname)
+        : [...current, nickname];
+
+      return { ...msg, reactions };
+    });
+
+    await saveMessages(updated);
+    return NextResponse.json(updated);
+  } catch (error) {
+    console.error("Chat PATCH error:", error);
+    return NextResponse.json({ error: "Failed to update reaction" }, { status: 500 });
   }
 }

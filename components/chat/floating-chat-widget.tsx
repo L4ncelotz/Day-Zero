@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { MessageSquare, X, Send, User, Sparkles, RefreshCw } from "lucide-react";
-import { ChatMessage } from "@/app/api/chat/route";
+import { ChatMessage, REACTION_EMOJIS } from "@/app/api/chat/route";
 
 const ROLES = [
   { id: "six_seven", label: "Skuba 6-7 (Doot Doot)", icon: "🦈" },
@@ -21,6 +21,7 @@ export function FloatingChatWidget() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
+  const [openPickerId, setOpenPickerId] = useState<string | null>(null); // message id whose picker is open
 
   // User Profile
   const [nickname, setNickname] = useState("");
@@ -116,6 +117,38 @@ export function FloatingChatWidget() {
       console.error("Failed to send message:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Toggle reaction on a message
+  const handleReact = async (messageId: string, emoji: string) => {
+    const userNick = nickname.trim() || "Anon-Intern";
+    // Optimistic update
+    setMessages((prev) =>
+      prev.map((msg) => {
+        if (msg.id !== messageId) return msg;
+        const reactions = { ...(msg.reactions || {}) };
+        const current = reactions[emoji] ?? [];
+        const alreadyReacted = current.includes(userNick);
+        reactions[emoji] = alreadyReacted
+          ? current.filter((n) => n !== userNick)
+          : [...current, userNick];
+        return { ...msg, reactions };
+      })
+    );
+    // Persist to server
+    try {
+      const res = await fetch("/api/chat", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messageId, emoji, nickname: userNick }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setMessages(updated);
+      }
+    } catch (err) {
+      console.error("Failed to react:", err);
     }
   };
 
@@ -267,6 +300,55 @@ export function FloatingChatWidget() {
                             }`}
                           >
                             {msg.text}
+                          </div>
+
+                          {/* Reaction Bar */}
+                          <div className={`flex flex-wrap gap-1 mt-1 ${isMe ? "justify-end" : "justify-start"}`}>
+                            {/* Existing reactions */}
+                            {Object.entries(msg.reactions || {}).map(([emoji, reactors]) => {
+                              if (!reactors || reactors.length === 0) return null;
+                              const iMeReacted = nickname && reactors.includes(nickname);
+                              return (
+                                <button
+                                  key={emoji}
+                                  onClick={() => handleReact(msg.id, emoji)}
+                                  className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[11px] border transition-all active:scale-90 ${
+                                    iMeReacted
+                                      ? "bg-accent/20 border-accent/50 text-accent"
+                                      : "bg-white/5 border-white/10 text-text-tertiary hover:bg-white/10"
+                                  }`}
+                                >
+                                  <span>{emoji}</span>
+                                  <span className="font-mono font-semibold">{reactors.length}</span>
+                                </button>
+                              );
+                            })}
+
+                            {/* + picker toggle */}
+                            <div className="relative">
+                              <button
+                                onClick={() => setOpenPickerId(openPickerId === msg.id ? null : msg.id)}
+                                className="flex items-center justify-center w-6 h-6 rounded-full bg-white/5 border border-white/10 text-text-tertiary hover:bg-white/10 text-[11px] transition-colors"
+                              >
+                                +
+                              </button>
+                              {openPickerId === msg.id && (
+                                <div className="absolute bottom-full mb-1 left-0 flex gap-0.5 p-1.5 rounded-xl bg-surface-elevated border border-white/15 shadow-2xl z-20">
+                                  {REACTION_EMOJIS.map((emoji) => (
+                                    <button
+                                      key={emoji}
+                                      onClick={() => {
+                                        handleReact(msg.id, emoji);
+                                        setOpenPickerId(null);
+                                      }}
+                                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/15 text-base active:scale-90 transition-all"
+                                    >
+                                      {emoji}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       );
