@@ -29,6 +29,7 @@ body {
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
 }
 
 /* Typography & tabular numbers */
@@ -91,6 +92,49 @@ body {
   body.custom-cursor-active * {
     cursor: none !important;
   }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Custom Scrollbar */
+/* -------------------------------------------------------------------------- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 193, 0.3); /* Accent color */
+}
+
+/* For specific thin scrollbars like in chat */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 193, 0.4);
+}
+
+/* Hide scrollbar entirely for some horizontal lists */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
 /* Mobile safe-area utilities */
