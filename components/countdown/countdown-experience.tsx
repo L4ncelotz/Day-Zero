@@ -23,6 +23,7 @@ import { CyberQuickBar } from "@/components/ui/cyber-quick-bar";
 import { MilestoneTimeline } from "./milestone-timeline";
 import { FloatingChatWidget } from "@/components/chat/floating-chat-widget";
 import { Milestone } from "@/lib/countdown/types";
+import { CustomContextMenu } from "@/components/ui/custom-context-menu";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -267,6 +268,7 @@ export function CountdownExperience({
 
   return (
     <div ref={containerRef} data-stage={stage} className="relative">
+      <CustomContextMenu />
       <CustomCursor reducedMotion={reducedMotion} />
       <Toaster position="bottom-center" theme="dark" />
       <FloatingChatWidget />

@@ -45,7 +45,7 @@ export function CyberQuickBar({ reducedMotion = false, onToggleMotion }: CyberQu
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, delay: 1 }}
-        className="hidden sm:flex fixed top-6 left-6 z-40 items-center gap-2 p-1.5 rounded-full bg-surface-elevated/70 backdrop-blur-md border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.5)]"
+        className="hidden sm:flex fixed top-6 left-6 z-50 items-center gap-2 p-1.5 rounded-full bg-surface-elevated/70 backdrop-blur-md border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.5)]"
       >
         {buttons.map((btn, i) => (
           <React.Fragment key={btn.key}>
