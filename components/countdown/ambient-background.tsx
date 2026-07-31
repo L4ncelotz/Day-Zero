@@ -58,7 +58,7 @@ export const AmbientBackground = React.memo(function AmbientBackground({ stage, 
       </div>
 
       {/* Subtle Grain Overlay (Foreground grain: 0px parallax) */}
-      <div className="absolute inset-0 bg-grain pointer-events-none opacity-40 mix-blend-overlay transform-gpu" style={{ translateZ: 0 }} />
+      <div className="absolute inset-0 bg-grain pointer-events-none opacity-40 mix-blend-overlay transform-gpu" />
     </div>
   );
 });
