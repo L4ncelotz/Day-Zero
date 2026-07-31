@@ -33,7 +33,7 @@ export function HeroLanding({ reducedMotion }: HeroLandingProps) {
   return (
     <section
       data-hero
-      className="relative w-full h-screen h-[100svh] flex flex-col items-center justify-center overflow-hidden"
+      className="relative w-full h-screen h-[100svh] flex flex-col items-center justify-center overflow-hidden pb-20"
     >
       {/* Starfield */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
