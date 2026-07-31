@@ -105,6 +105,8 @@ export function MilestoneTimeline({ milestones }: { milestones: Milestone[] }) {
   const radarRotate = useTransform(scrollYProgress, [0, 1], [0, 360]);
 
   // Smoothly dim the global ambient background as we dive into the timeline
+  const bgDimOpacity = useTransform(scrollYProgress, [0, 0.1], [0, 0.6]);
+  
   const sectionHeight = Math.max(300, milestones.length * 120);
 
   return (
