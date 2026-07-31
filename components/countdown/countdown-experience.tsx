@@ -19,7 +19,9 @@ import { ProgressTrack } from "./progress-track";
 import { SecondaryStats } from "./secondary-stats";
 import { UpcomingOverride } from "./upcoming-override";
 import { CustomCursor } from "./custom-cursor";
+import { CyberQuickBar } from "@/components/ui/cyber-quick-bar";
 import { MilestoneTimeline } from "./milestone-timeline";
+import { FloatingChatWidget } from "@/components/chat/floating-chat-widget";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -261,9 +263,19 @@ export function CountdownExperience({
   };
 
   return (
-    <div ref={containerRef} data-stage={stage}>
+    <div ref={containerRef} data-stage={stage} className="relative">
       <CustomCursor reducedMotion={reducedMotion} />
       <Toaster position="bottom-center" theme="dark" />
+      <FloatingChatWidget />
+      <CyberQuickBar 
+        reducedMotion={reducedMotion} 
+        onToggleMotion={() => setReducedMotion(!reducedMotion)} 
+      />
+
+      {/* Global Background */}
+      <div data-intro="bg" className="fixed inset-0 pointer-events-none z-[-1]">
+        <AmbientBackground stage={stage} reducedMotion={reducedMotion} pointerX={smoothPointerX} pointerY={smoothPointerY} />
+      </div>
 
       {/* Section 1: Hero Landing */}
       <HeroLanding reducedMotion={reducedMotion} />
@@ -271,11 +283,8 @@ export function CountdownExperience({
       {/* Section 2: Countdown */}
       <div
         data-countdown-section
-        className="relative min-h-screen min-h-[100svh] flex flex-col justify-between p-4 sm:p-8 overflow-hidden"
+        className="relative min-h-screen min-h-[100svh] flex flex-col justify-between p-4 sm:p-8"
       >
-        <div data-intro="bg" className="absolute inset-0 pointer-events-none">
-          <AmbientBackground stage={stage} reducedMotion={reducedMotion} pointerX={smoothPointerX} pointerY={smoothPointerY} />
-        </div>
         <CompletionEffect
           isCompleted={initialResult.isCompleted}
           reducedMotion={reducedMotion}

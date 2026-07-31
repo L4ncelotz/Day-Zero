@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useEffect } from "react";
 import { D0HeroScene } from "./d0-hero-scene";
 
 interface HeroLandingProps {
@@ -13,18 +13,21 @@ interface HeroLandingProps {
  * Pinned and animated out via GSAP ScrollTrigger from the parent.
  */
 export function HeroLanding({ reducedMotion }: HeroLandingProps) {
-  // Generate starfield dots safely with useMemo
-  const stars = useMemo(() => {
+  const [stars, setStars] = useState<any[]>([]);
+
+  useEffect(() => {
     const starCount = 80;
-    return Array.from({ length: starCount }).map((_, i) => ({
-      id: i,
-      size: Math.random() * 2 + 0.5,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      delay: Math.random() * 5,
-      duration: 2 + Math.random() * 3,
-      opacity: 0.2 + Math.random() * 0.6,
-    }));
+    setStars(
+      Array.from({ length: starCount }).map((_, i) => ({
+        id: i,
+        size: Math.random() * 2 + 0.5,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        delay: Math.random() * 5,
+        duration: 2 + Math.random() * 3,
+        opacity: 0.2 + Math.random() * 0.6,
+      }))
+    );
   }, []);
 
   return (

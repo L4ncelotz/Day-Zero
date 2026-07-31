@@ -64,10 +64,14 @@ export function CustomCursor({ reducedMotion = false }: CustomCursorProps) {
     };
   }, [reducedMotion, cursorX, cursorY]);
 
-  if (!isPointerDevice || reducedMotion || !isVisible) return null;
+  if (!isPointerDevice || reducedMotion) return null;
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+    <motion.div 
+      animate={{ opacity: isVisible ? 1 : 0 }}
+      transition={{ duration: 0.15 }}
+      className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden"
+    >
       {/* Dynamic Cursor Light Spotlight */}
       <motion.div
         style={{
@@ -124,6 +128,6 @@ export function CustomCursor({ reducedMotion = false }: CustomCursorProps) {
         transition={{ duration: 0.15 }}
         className="absolute w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_12px_#ffffff]"
       />
-    </div>
+    </motion.div>
   );
 }
