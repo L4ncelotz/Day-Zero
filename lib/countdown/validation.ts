@@ -16,10 +16,19 @@ export const scheduleOverrideSchema = z.object({
   label: z.string().max(80, "Label cannot exceed 80 characters"),
 });
 
+export const milestoneSchema = z.object({
+  id: z.string().min(1),
+  date: z.string().max(80, "Date cannot exceed 80 characters"),
+  title: z.string().min(1, "Title is required").max(100, "Title cannot exceed 100 characters"),
+  description: z.string().max(300, "Description cannot exceed 300 characters"),
+  isCompleted: z.boolean(),
+});
+
 export const scheduleDataSchema = z.object({
   version: z.literal(1),
   lastUpdatedAt: z.string(),
   overrides: z.array(scheduleOverrideSchema),
+  milestones: z.array(milestoneSchema).optional(),
 });
 
 /**

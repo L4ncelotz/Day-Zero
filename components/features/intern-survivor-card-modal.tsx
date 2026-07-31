@@ -134,12 +134,13 @@ export function InternSurvivorCardModal({ isOpen, onClose }: InternSurvivorCardM
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+      <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center sm:p-4 bg-black/80 backdrop-blur-md">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="relative flex flex-col items-center w-full max-w-sm"
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 40 }}
+          className="relative flex flex-col items-center w-full sm:max-w-sm max-h-[95svh] overflow-y-auto rounded-t-3xl sm:rounded-2xl bg-[#08090e] px-4 pt-4 pb-6 sm:p-0 sm:bg-transparent"
+          style={{ paddingBottom: "max(env(safe-area-inset-bottom, 0px), 24px)" }}
         >
           {/* Close button */}
           <button

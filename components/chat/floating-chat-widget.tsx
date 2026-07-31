@@ -126,7 +126,8 @@ export function FloatingChatWidget() {
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.94 }}
-        className="fixed bottom-6 right-6 z-40 flex items-center gap-2.5 px-4 py-3 rounded-full bg-surface-elevated/90 backdrop-blur-xl border border-accent/40 shadow-[0_0_25px_rgba(0,255,193,0.25)] text-text-primary group"
+        className="fixed bottom-[88px] right-4 sm:bottom-6 sm:right-6 z-40 flex items-center gap-2.5 px-4 py-3 rounded-full bg-surface-elevated/90 backdrop-blur-xl border border-accent/40 shadow-[0_0_25px_rgba(0,255,193,0.25)] text-text-primary group"
+        style={{ bottom: "calc(88px + env(safe-area-inset-bottom, 0px))" }}
       >
         <div className="relative">
           <MessageSquare className="w-5 h-5 text-accent transition-transform group-hover:rotate-12" />
@@ -146,7 +147,10 @@ export function FloatingChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="fixed bottom-22 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[380px] h-[520px] max-h-[80vh] flex flex-col rounded-3xl border border-accent/30 bg-black/85 backdrop-blur-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden"
+          className="fixed right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[380px] h-[70svh] sm:h-[520px] max-h-[80vh] flex flex-col rounded-3xl border border-accent/30 bg-black/85 backdrop-blur-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden"
+            style={{
+              bottom: "calc(100px + env(safe-area-inset-bottom, 0px))",
+            }}
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-surface/50">

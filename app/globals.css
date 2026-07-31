@@ -33,8 +33,8 @@ body {
 
 /* Typography & tabular numbers */
 .countdown-number {
-  font-size: clamp(6.5rem, 26vw, 17rem);
-  line-height: 0.8;
+  font-size: clamp(5rem, 22vw, 17rem);
+  line-height: 0.85;
   font-weight: 560;
   letter-spacing: -0.065em;
   font-variant-numeric: tabular-nums;
@@ -91,6 +91,15 @@ body {
   body.custom-cursor-active * {
     cursor: none !important;
   }
+}
+
+/* Mobile safe-area utilities */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.mb-safe { margin-bottom: env(safe-area-inset-bottom, 0px); }
+
+/* Reduce 300ms tap delay on all interactive elements */
+button, a, [role="button"] {
+  touch-action: manipulation;
 }
 
 /* -------------------------------------------------------------------------- */

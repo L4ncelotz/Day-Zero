@@ -7,6 +7,8 @@ import { AdminHeader } from "@/components/admin/admin-header";
 import { ScheduleSummary } from "@/components/admin/schedule-summary";
 import { OverrideForm } from "@/components/admin/override-form";
 import { OverrideTable } from "@/components/admin/override-table";
+import { MilestoneTable } from "@/components/admin/milestone-table";
+import { AddMilestoneForm } from "@/components/admin/add-milestone-form";
 import { AlertTriangle } from "lucide-react";
 import { Toaster } from "sonner";
 
@@ -61,6 +63,24 @@ export default async function ControlRoomPage() {
           overrides={scheduleData.overrides}
           usingFallback={usingFallback}
         />
+
+        <div className="pt-8 mt-8 border-t border-line">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-lg font-semibold text-text-primary">
+              Milestone Timeline
+            </h2>
+          </div>
+          <p className="text-sm text-text-secondary">
+            จัดการเส้นเวลาและเหตุการณ์สำคัญที่แสดงในหน้าแรกของเว็บไซต์
+          </p>
+
+          <AddMilestoneForm usingFallback={usingFallback} />
+
+          <MilestoneTable
+            milestones={scheduleData.milestones || []}
+            usingFallback={usingFallback}
+          />
+        </div>
       </div>
     </div>
   );

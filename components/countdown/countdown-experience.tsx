@@ -22,15 +22,18 @@ import { CustomCursor } from "./custom-cursor";
 import { CyberQuickBar } from "@/components/ui/cyber-quick-bar";
 import { MilestoneTimeline } from "./milestone-timeline";
 import { FloatingChatWidget } from "@/components/chat/floating-chat-widget";
+import { Milestone } from "@/lib/countdown/types";
 
 gsap.registerPlugin(ScrollTrigger);
 
 interface CountdownExperienceProps {
   initialResult: CalculationResult;
+  milestones?: Milestone[];
 }
 
 export function CountdownExperience({
   initialResult,
+  milestones = [],
 }: CountdownExperienceProps) {
   const [mode, setMode] = useState<CountdownMode>("working");
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -283,7 +286,7 @@ export function CountdownExperience({
       {/* Section 2: Countdown */}
       <div
         data-countdown-section
-        className="relative min-h-screen min-h-[100svh] flex flex-col justify-between p-4 sm:p-8"
+        className="relative min-h-screen min-h-[100svh] flex flex-col justify-between p-4 sm:p-8 pb-28 sm:pb-8"
       >
         <CompletionEffect
           isCompleted={initialResult.isCompleted}
@@ -291,8 +294,8 @@ export function CountdownExperience({
         />
 
         {/* Top Bar */}
-        <header className="relative z-10 w-full max-w-6xl mx-auto flex items-center justify-between h-14">
-          <div className="eyebrow text-text-tertiary">DAY ZERO</div>
+        <header className="relative z-10 w-full max-w-6xl mx-auto flex items-center justify-end sm:justify-between h-14">
+          <div className="eyebrow text-text-tertiary hidden sm:block">DAY ZERO</div>
           <Button
             variant="outline"
             size="sm"
@@ -402,8 +405,8 @@ export function CountdownExperience({
         </footer>
       </div>
 
-      {/* Section 3: Timeline */}
-      <MilestoneTimeline />
+      {/* Timeline Section */}
+      <MilestoneTimeline milestones={milestones} />
     </div>
   );
 }

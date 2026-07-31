@@ -3,52 +3,7 @@
 import React, { useRef } from "react";
 import { motion, useScroll, useTransform, MotionValue, useMotionValueEvent } from "motion/react";
 import { GlitchText } from "@/components/ui/glitch-text";
-
-interface Milestone {
-  id: string;
-  date: string;
-  title: string;
-  description: string;
-  isCompleted: boolean;
-}
-
-const MILESTONES: Milestone[] = [
-  {
-    id: "m1",
-    date: "1 November 2025",
-    title: "The First Day",
-    description: "Started the journey, set up environments, and met the team.",
-    isCompleted: true,
-  },
-  {
-    id: "m2",
-    date: "15 January 2026",
-    title: "First Major Project",
-    description: "Successfully delivered the first major feature to production.",
-    isCompleted: true,
-  },
-  {
-    id: "m3",
-    date: "1 May 2026",
-    title: "Mid-term Evaluation",
-    description: "Received feedback and leveled up skills for the second half.",
-    isCompleted: true,
-  },
-  {
-    id: "m4",
-    date: "1 September 2026",
-    title: "Final Presentation Prep",
-    description: "Gathering results and preparing the final showcase.",
-    isCompleted: false,
-  },
-  {
-    id: "m5",
-    date: "30 October 2026",
-    title: "Day Zero",
-    description: "The final day of the internship. Mission accomplished.",
-    isCompleted: false,
-  },
-];
+import { Milestone } from "@/lib/countdown/types";
 
 interface MilestoneCardProps {
   milestone: Milestone;
@@ -137,7 +92,7 @@ const MilestoneCard = React.memo(function MilestoneCard({ milestone, progress, i
   );
 });
 
-export function MilestoneTimeline() {
+export function MilestoneTimeline({ milestones }: { milestones: Milestone[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -191,15 +146,15 @@ export function MilestoneTimeline() {
           className="absolute left-1/2 top-0 bottom-0 w-[1px] -translate-x-1/2 bg-white pointer-events-none"
         />
 
-        {/* Milestone Cards Stack */}
+        {/* Milestone Cards Container */}
         <div className="absolute inset-0 perspective-[1000px] pointer-events-none">
-          {MILESTONES.map((milestone, index) => (
+          {milestones.map((milestone, index) => (
             <MilestoneCard
               key={milestone.id}
               milestone={milestone}
               progress={scrollYProgress}
               index={index}
-              total={MILESTONES.length}
+              total={milestones.length}
             />
           ))}
         </div>

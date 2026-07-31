@@ -8,7 +8,11 @@ export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const { data: scheduleData, usingFallback } = await getSchedule();
-  const initialResult = calculateCountdown(scheduleData, undefined, usingFallback);
+  const result = calculateCountdown(scheduleData, undefined, usingFallback);
 
-  return <CountdownExperience initialResult={initialResult} />;
+  return (
+    <main className="min-h-screen bg-background">
+      <CountdownExperience initialResult={result} milestones={scheduleData.milestones ?? []} />
+    </main>
+  );
 }

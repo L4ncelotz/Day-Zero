@@ -7,10 +7,19 @@ export type ScheduleOverride = {
   label: string;
 };
 
+export type Milestone = {
+  id: string;
+  date: string; // Free text date string e.g. "1 November 2025" or "Q3 2026"
+  title: string;
+  description: string;
+  isCompleted: boolean;
+};
+
 export type ScheduleData = {
   version: 1;
   lastUpdatedAt: string; // ISO 8601 string
   overrides: ScheduleOverride[];
+  milestones?: Milestone[];
 };
 
 export type CountdownMode = "working" | "calendar";
