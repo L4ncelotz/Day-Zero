@@ -80,7 +80,7 @@ export function DeleteMilestoneDialog({
         </Button>
         <Button
           type="button"
-          variant="destructive"
+          variant="danger"
           onClick={handleDelete}
           disabled={isSubmitting}
         >
