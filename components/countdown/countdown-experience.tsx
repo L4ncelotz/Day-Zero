@@ -19,6 +19,7 @@ import { ProgressTrack } from "./progress-track";
 import { SecondaryStats } from "./secondary-stats";
 import { UpcomingOverride } from "./upcoming-override";
 import { CustomCursor } from "./custom-cursor";
+import { MilestoneTimeline } from "./milestone-timeline";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -387,11 +388,13 @@ export function CountdownExperience({
           <UpcomingOverride overrides={initialResult.upcomingOverrides} />
         </main>
 
-        {/* Footer */}
-        <footer className="relative z-10 w-full max-w-6xl mx-auto text-center py-2 text-[11px] text-text-tertiary font-mono">
+        <footer className="relative z-10 w-full max-w-6xl mx-auto text-center py-2 text-[11px] text-text-tertiary font-mono mt-8">
           ASIA / BANGKOK TIMEZONE
         </footer>
       </div>
+
+      {/* Section 3: Timeline */}
+      <MilestoneTimeline />
     </div>
   );
 }

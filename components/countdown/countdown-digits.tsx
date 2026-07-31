@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { GlitchText } from "@/components/ui/glitch-text";
 import { motion, AnimatePresence, MotionValue, useTransform, useMotionValue } from "motion/react";
 
 interface CountdownDigitsProps {
@@ -51,7 +52,7 @@ export function CountdownDigits({ value, label, reducedMotion = false, pointerX,
                   }}
                   className="text-text-primary block drop-shadow-[0_10px_35px_rgba(0,0,0,0.8)]"
                 >
-                  {digit}
+                  <GlitchText text={digit}>{digit}</GlitchText>
                 </motion.span>
               </AnimatePresence>
             )}
