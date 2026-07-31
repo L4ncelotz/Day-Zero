@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { MessageSquare, X, Send, User, Sparkles, RefreshCw } from "lucide-react";
-import { ChatMessage, REACTION_EMOJIS } from "@/app/api/chat/route";
+import { ChatMessage, REACTION_EMOJIS } from "@/lib/chat/types";
 
 const ROLES = [
   { id: "six_seven", label: "Skuba 6-7 (Doot Doot)", icon: "🦈" },

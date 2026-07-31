@@ -1,19 +1,7 @@
 import { NextResponse } from "next/server";
 import { redis } from "@/lib/redis/client";
+import { ChatMessage, REACTION_EMOJIS, ReactionEmoji } from "@/lib/chat/types";
 
-export const REACTION_EMOJIS = ["❤️", "🔥", "😂", "😭", "😱", "👍"] as const;
-export type ReactionEmoji = (typeof REACTION_EMOJIS)[number];
-
-export interface ChatMessage {
-  id: string;
-  name: string;
-  role: string;
-  roleIcon: string;
-  text: string;
-  createdAt: string;
-  // reactions: Record<emoji, Set<nickname>>  — stored as Record<emoji, string[]>
-  reactions?: Record<string, string[]>;
-}
 
 const REDIS_KEY = "internship_chat_messages";
 
