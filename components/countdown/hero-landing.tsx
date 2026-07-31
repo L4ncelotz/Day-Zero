@@ -78,10 +78,10 @@ export function HeroLanding({ reducedMotion }: HeroLandingProps) {
         </p>
       </div>
 
-      {/* Scroll Indicator — hidden on mobile (bottom nav replaces it visually) */}
+      {/* Scroll Indicator — hidden on mobile, bottom nav bar serves the same purpose */}
       <div
         data-hero-scroll
-        className="absolute bottom-24 sm:bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-text-tertiary z-10"
+        className="hidden sm:flex absolute bottom-12 left-1/2 -translate-x-1/2 flex-col items-center gap-2 text-text-tertiary z-10"
       >
         <span className="text-[10px] tracking-[0.3em] uppercase font-mono">
           Scroll
